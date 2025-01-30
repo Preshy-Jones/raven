@@ -4,9 +4,8 @@ export interface User {
   password: string;
   firstName: string;
   lastName: string;
-  ravenBankAccountNumber: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface Transaction {
@@ -17,8 +16,8 @@ export interface Transaction {
   status: "PENDING" | "COMPLETED" | "FAILED";
   reference: string;
   metadata: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface RavenWebhookSource {

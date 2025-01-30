@@ -6,8 +6,8 @@ export interface IWallet {
   id?: number;
   userId: number;
   balance: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export class Wallet extends BaseModel {

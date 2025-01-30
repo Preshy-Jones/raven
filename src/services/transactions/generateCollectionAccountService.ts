@@ -1,11 +1,3 @@
-// const ravenBank = new RavenBankService();
-// const collectionAccount = await ravenBank.generateCollectionAccount(
-//   user.id!.toString(),
-//   email,
-//   firstName,
-//   lastName
-// );
-
 import { User } from "../../database/models/User";
 import { VirtualAccount } from "../../database/models/VirtualAccount";
 import { NotFoundError, ServiceError } from "../../errors";

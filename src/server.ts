@@ -1,5 +1,3 @@
-import express from "express";
-import logger from "./utils/logger";
 import createServer from "./utils/createServer";
 
 import http from "http";
@@ -10,10 +8,6 @@ const app = createServer();
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 8000;
-
-// server.listen(PORT, async () => {
-//   logger.info(`App is running at http://localhost:${PORT}`);
-// });
 
 async function testConnection() {
   try {
@@ -56,6 +50,5 @@ process.on("SIGINT", async () => {
     process.exit(1);
   }
 });
-
 
 startServer();

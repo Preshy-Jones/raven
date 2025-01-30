@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { successResponse } from "../utils";
 import {
   GenerateVirtualAccountNumberInput,
+  LookUpAccountInput,
   TransferInput,
 } from "../validation/transaction.schema";
 import { Wallet } from "../database/models/Wallet";
@@ -13,6 +14,7 @@ import { RavenWebhookPayload } from "../types/global";
 import generateCollectionAccount from "../services/transactions/generateCollectionAccountService";
 import { VirtualAccount } from "../database/models/VirtualAccount";
 import { NotFoundError } from "../errors";
+import { TransferService } from "../services/transactions/transferService";
 
 export const getBanksHandler = async (
   req: Request,
@@ -21,22 +23,25 @@ export const getBanksHandler = async (
 ) => {
   try {
     const ravenBank = new RavenBankService();
-    const banks = await ravenBank.listBanks();
-    return res.send(successResponse("Banks retrieved", banks));
+    const response = await ravenBank.listBanks();
+    return res.send(successResponse("Banks retrieved", response.data));
   } catch (error) {
     next(error);
   }
 };
 
 export const lookupAccountHandler = async (
-  req: Request<{}, {}, TransferInput["body"]>,
+  req: Request<{}, {}, LookUpAccountInput["body"]>,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { bankCode, accountNumber } = req.body;
     const ravenBank = new RavenBankService();
-    const account = await ravenBank.lookupAccount(bankCode, accountNumber);
+    console.log("bankCode", bankCode);
+    console.log("accountNumber", accountNumber);
+
+    const account = await ravenBank.lookupAccount(accountNumber, bankCode);
     return res.send(successResponse("Account retrieved", account));
   } catch (error) {
     next(error);
@@ -48,65 +53,26 @@ export const transferHandler = async (
   res: Response,
   next: NextFunction
 ) => {
+  const trx = await db.transaction();
   try {
     const { bankCode, accountNumber, accountName, amount } = req.body;
-    const userId = req.user.id;
-    const ravenBank = new RavenBankService();
-    if (amount > 100) {
-      return res.status(400).json({ error: "Amount cannot exceed 100 NGN" });
-    }
+    const userId = req.user;
 
-    // Check wallet balance
-    const balance = await Wallet.getBalance(userId);
-    if (balance < amount) {
-      return res.status(400).json({ error: "Insufficient funds" });
-    }
-
-    const reference = `TRF_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
-
-    // Create pending transaction
-    await Transaction.create({
+    const result = await TransferService.initiateTransfer(
       userId,
-      type: "TRANSFER",
-      amount,
-      status: "PENDING",
-      reference,
+      { bankCode, accountNumber, accountName, amount },
+      trx
+    );
+
+    await trx.commit();
+
+    return res.json({
+      message: "Transfer successful",
+      reference: result.reference,
+      newBalance: result.newBalance,
     });
-
-    try {
-      // Deduct from wallet
-      await Wallet.updateBalance(userId, -amount);
-
-      // Initiate transfer
-      const transfer = await ravenBank.initiateTransfer({
-        amount,
-        bank_code: bankCode,
-        account_number: accountNumber,
-        account_name: accountName,
-        reference,
-        narration: "Transfer from wallet",
-      });
-
-      // Update transaction status
-      await Transaction.updateStatus(reference, "COMPLETED", transfer);
-
-      res.json({
-        message: "Transfer successful",
-        reference,
-        newBalance: await Wallet.getBalance(userId),
-      });
-    } catch (error) {
-      // If transfer fails, refund wallet
-      await Wallet.updateBalance(userId, amount);
-      await Transaction.updateStatus(reference, "FAILED", {
-        error: error.message,
-      });
-      throw error;
-    }
   } catch (error) {
-    console.error("Transfer error:", error);
+    await trx.rollback();
     next(error);
   }
 };
@@ -123,16 +89,19 @@ export const ravenWebhookHandler = async (
     if (payload.type === "collection") {
       try {
         // Find user by virtual account number
-        const user = await VirtualAccount.findOne({
+        const userVirtualAccount = await VirtualAccount.findOne({
           accountNumber: payload.account_number,
         });
-        if (!user) {
+        if (!userVirtualAccount) {
           console.error(
-            `No user found for account number: ${payload.account_number}`
+            `No virtual account found for account number ${payload.account_number}`
           );
 
-          throw new NotFoundError("User not found");
+          throw new NotFoundError("Virtual account not found");
         }
+
+        // Find user by virtual account number
+        const user = await User.findById(userVirtualAccount.userId);
 
         const reference = `DEP_${payload.session_id}`;
 
@@ -194,8 +163,8 @@ export const getWalletBalanceHandler = async (
   next: NextFunction
 ) => {
   try {
-    const balance = await Wallet.getBalance(req.user.id);
-    res.json({ balance });
+    const balance = await Wallet.getBalance(Number(req.user));
+    return res.send(successResponse("Wallet balance retrieved", balance));
   } catch (error) {
     next(error);
   }

@@ -10,8 +10,8 @@ export interface IVirtualAccount {
   bankName: string;
   amount: number;
   status: "ACTIVE" | "INACTIVE";
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export class VirtualAccount extends BaseModel {
@@ -21,7 +21,7 @@ export class VirtualAccount extends BaseModel {
     userId: number,
     accountData: Omit<
       IVirtualAccount,
-      "id" | "userId" | "status" | "createdAt" | "updatedAt"
+      "id" | "userId" | "status" | "created_at" | "updated_at"
     >,
     trx?: Knex.Transaction
   ): Promise<IVirtualAccount> {
@@ -41,6 +41,6 @@ export class VirtualAccount extends BaseModel {
   static async deactivateAccount(accountId: number): Promise<void> {
     await db(this.tableName)
       .where({ id: accountId })
-      .update({ status: "INACTIVE", updatedAt: new Date() });
+      .update({ status: "INACTIVE", updated_at: new Date() });
   }
 }

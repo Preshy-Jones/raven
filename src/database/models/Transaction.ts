@@ -12,15 +12,15 @@ export interface ITransaction {
   status: TransactionStatus;
   reference: string;
   metadata?: Record<string, any>;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export class Transaction extends BaseModel {
   protected static tableName = "transactions";
 
   static async create(
-    transactionData: Omit<ITransaction, "id" | "createdAt" | "updatedAt">,
+    transactionData: Omit<ITransaction, "id" | "created_at" | "updated_at">,
     trx?: Knex.Transaction
   ): Promise<ITransaction> {
     const queryBuilder = trx ? trx(this.tableName) : db(this.tableName);
@@ -31,15 +31,16 @@ export class Transaction extends BaseModel {
   static async updateStatus(
     reference: string,
     status: TransactionStatus,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
+    trx?: Knex.Transaction
   ): Promise<void> {
-    await db(this.tableName)
-      .where({ reference })
-      .update({
-        status,
-        metadata: metadata ? JSON.stringify(metadata) : undefined,
-        updatedAt: new Date(),
-      });
+    const queryBuilder = trx ? trx(this.tableName) : db(this.tableName);
+
+    await queryBuilder.where({ reference }).update({
+      status,
+      metadata: metadata ? JSON.stringify(metadata) : undefined,
+      updated_at: new Date(),
+    });
   }
 
   static async getUserTransactions(userId: number): Promise<ITransaction[]> {

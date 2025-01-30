@@ -3,6 +3,7 @@ import config from "../config";
 import {
   GenerateCollectionAccountResponseData,
   RavenResponse,
+  TransferResponseData,
 } from "../types/raven";
 
 export class RavenBankService {
@@ -56,7 +57,7 @@ export class RavenBankService {
     account_name: string;
     reference: string;
     narration?: string;
-  }) {
+  }): Promise<RavenResponse<TransferResponseData>> {
     try {
       const response = await this.client.post(`${this.baseUrl}/transfers`, {
         ...params,
@@ -65,6 +66,25 @@ export class RavenBankService {
       console.log("Transfer initiated successfully", response.data);
 
       return response.data;
+      // return {
+      //   status: "success",
+      //   message: "transfer queued successfully",
+      //   data: {
+      //     email: "adedibuprecious@gmail.com",
+      //     trx_ref: "202207111524IIGEEHC",
+      //     merchant_ref: "9967998",
+      //     amount: 200,
+      //     bank: "Opay",
+      //     bank_code: "100004",
+      //     account_number: "8188996821",
+      //     account_name: "Precious Adedbu",
+      //     narration: "Transfer",
+      //     fee: 10,
+      //     status: "pending",
+      //     created_at: "2024-01-30T13:24:03.402Z",
+      //     id: 2,
+      //   },
+      // };
     } catch (error) {
       console.log("Error initiating transfer", error);
 
@@ -96,13 +116,17 @@ export class RavenBankService {
     bankCode: string
   ): Promise<string> {
     try {
+      const payload = {
+        account_number: accountNumber,
+        bank: bankCode,
+      };
+      console.log("Payload", payload);
+
       const response = await this.client.post(
         `${this.baseUrl}/v1/account_number_lookup`,
-        {
-          account_number: accountNumber,
-          bank: bankCode,
-        }
+        payload
       );
+
       console.log("Account details", response.data);
 
       return response.data;

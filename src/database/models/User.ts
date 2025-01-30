@@ -11,15 +11,15 @@ export interface IUser {
   firstName: string;
   lastName: string;
   phoneNumber: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export class User extends BaseModel {
   protected static tableName = "users";
 
   static async create(
-    userData: Omit<IUser, "id" | "createdAt" | "updatedAt">,
+    userData: Omit<IUser, "id" | "created_at" | "updated_at">,
     trx?: Knex.Transaction
   ): Promise<IUser> {
     const hashedPassword = await bcrypt.hash(userData.password, 10);

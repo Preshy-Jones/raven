@@ -31,3 +31,19 @@ export interface GenerateCollectionAccountResponseData {
   isPermanent: boolean;
   amount: string;
 }
+
+export interface TransferResponseData {
+  email: string;
+  trx_ref: string;
+  merchant_ref: string;
+  amount: number;
+  bank: string;
+  bank_code: string;
+  account_number: string;
+  account_name: string;
+  narration: string;
+  fee: number;
+  status: string;
+  created_at: string;
+  id: number;
+}
