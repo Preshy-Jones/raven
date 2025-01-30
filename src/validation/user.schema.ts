@@ -13,6 +13,10 @@ const payload = {
       required_error: "Last name is required",
       invalid_type_error: "Last name must be a string",
     }),
+    phoneNumber: string({
+      required_error: "Phone number is required",
+      invalid_type_error: "Phone number must be a string",
+    }),
     password: string({
       required_error: "Password is required",
     })

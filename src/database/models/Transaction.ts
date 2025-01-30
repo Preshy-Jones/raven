@@ -1,6 +1,6 @@
 import { db } from "../../config/database";
 import { BaseModel } from "./BaseModel";
-
+import { Knex } from "knex";
 export type TransactionType = "DEPOSIT" | "TRANSFER";
 export type TransactionStatus = "PENDING" | "COMPLETED" | "FAILED";
 
@@ -20,9 +20,11 @@ export class Transaction extends BaseModel {
   protected static tableName = "transactions";
 
   static async create(
-    transactionData: Omit<ITransaction, "id" | "createdAt" | "updatedAt">
+    transactionData: Omit<ITransaction, "id" | "createdAt" | "updatedAt">,
+    trx?: Knex.Transaction
   ): Promise<ITransaction> {
-    const [id] = await db(this.tableName).insert(transactionData);
+    const queryBuilder = trx ? trx(this.tableName) : db(this.tableName);
+    const [id] = await queryBuilder.insert(transactionData);
     return this.findById(id);
   }
 

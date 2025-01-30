@@ -20,3 +20,22 @@ export interface Transaction {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface RavenWebhookSource {
+  account_number: string;
+  first_name: string;
+  last_name: string;
+  narration: string;
+  bank: string;
+  bank_code: string;
+  createdAt: string;
+}
+
+export interface RavenWebhookPayload {
+  type: string;
+  amount: number;
+  session_id: string;
+  account_number: string;
+  source: RavenWebhookSource;
+  secret: string;
+}

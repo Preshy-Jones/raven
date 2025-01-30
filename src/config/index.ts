@@ -12,6 +12,7 @@ const envVarsSchema = joi
       .string()
       .required()
       .description("Database username is required"),
+
     // DB_PASSWORD: joi
     //   .string()
     //   // .required()
@@ -21,10 +22,15 @@ const envVarsSchema = joi
       .string()
       .required()
       .description("Raven API key is required"),
+    RAVEN_WEBHOOK_SECRET: joi.string().description("Raven webhook secret"),
     JWT_SECRET: joi
       .string()
       .required()
       .description("JWT secret key is required"),
+    JWT_EXPIRES_IN: joi
+      .string()
+      .required()
+      .description("JWT expiry time is required"),
   })
   .unknown()
   .required();
@@ -54,6 +60,7 @@ const config = {
   },
   raven: {
     apiKey: envVars.RAVEN_API_KEY,
+    webhookSecret: envVars.RAVEN_WEBHOOK_SECRET,
   },
 };
 

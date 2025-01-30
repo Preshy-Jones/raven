@@ -3,6 +3,7 @@ import express from "express";
 import compression from "compression";
 import authRoutes from "../routes/auth";
 import userRoutes from "../routes/user";
+import transactionRoutes from "../routes/transaction";
 
 import passport from "passport";
 
@@ -37,6 +38,7 @@ function createServer() {
 
   app.use("/api/auth", authRoutes);
   app.use("/api/user", userRoutes);
+  app.use("/api/transaction", transactionRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

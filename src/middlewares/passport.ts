@@ -12,7 +12,7 @@ const opts: StrategyOptions = {
 };
 
 interface JwtPayload {
-  id: string;
+  id: number;
 }
 
 const passportStrategy = new JwtStrategy(opts, async function (
