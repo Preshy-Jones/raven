@@ -4,20 +4,6 @@ export interface RavenResponse<T> {
   data?: T;
 }
 
-// {
-//   "account_number": "6000323534",
-//   "account_name": "BST/PreshyJones - Precious Adedibu",
-//   "bank": "BestStar MFB",
-//   "customer": {
-//       "email": "adedibuprecious@gmail.com",
-//       "first_name": "Precious",
-//       "last_name": "Adedibu",
-//       "phone": "08188996821"
-//   },
-//   "isPermanent": false,
-//   "amount": "500"
-// }
-
 export interface GenerateCollectionAccountResponseData {
   account_number: string;
   account_name: string;
